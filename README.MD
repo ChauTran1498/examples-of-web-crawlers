@@ -53,7 +53,7 @@ weibo_password = "改成你的微博密码"
 ```
 
 ### 演示图片
-![](1.淘宝模拟登录/example.gif)
+![](1. Taobao Simulated Login/example.gif)
 
   
 
@@ -167,7 +167,7 @@ weibo_password = "改成你的微博密码"
 
 <img src="4.每天不同时间段通过微信发消息提醒女友/example1.png" width = "310"  alt="example1" /><img src="4.每天不同时间段通过微信发消息提醒女友/example2.png" width = "310"  alt="example2" />
 
-<img src="4.每天不同时间段通过微信发消息提醒女友/example3.png" width = "620"  alt="example3"/>
+<img src="4. Send Messages at Different Times of the Day via WeChat to Remind My Girlfriend/example3.png" width = "620"  alt="example3"/>
 
 
 
@@ -192,8 +192,8 @@ weibo_password = "改成你的微博密码"
 
 ### 功能截图
 
-![](5.爬取5K分辨率超清唯美壁纸/example1.png)
-![](5.爬取5K分辨率超清唯美壁纸/example2.gif)
+![](5. Crawl 5K Resolution Ultra HD Beautiful Wallpapers/example1.png)
+![](5. Crawl 5K Resolution Ultra HD Beautiful Wallpapers/example2.gif)
 
 
 ### 如何运行
@@ -298,7 +298,7 @@ python main.py
 
 ### 功能截图
 
-![](7.爬取天天基金网所有基金数据/example.gif)
+![](7. Crawl all fund data from TianTian Fund Website/example.gif)
 
 ### 配置说明
 
@@ -389,10 +389,10 @@ pyinstaller generate_wx_data.py
 
 ### 功能截图
 
-![](9.一键生成QQ个人历史报告/example1.png)
-![](9.一键生成QQ个人历史报告/example2.png)
-![](9.一键生成QQ个人历史报告/example3.png)
-![](9.一键生成QQ个人历史报告/example4.png)
+![](One-Click Generation of Personal QQ History Report/example1.png)
+![](One-Click Generation of Personal QQ History Report/example2.png)
+![](One-Click Generation of Personal QQ History Report/example3.png)
+![](One-Click Generation of Personal QQ History Report/example4.png)
 
 
 ### 如何运行
@@ -437,11 +437,11 @@ python main.py
 在开始写代码思路之前，我们先看看最终生成的效果。
 
 ### 电子书效果(图片引用自[出书啦](https://chushu.la/))
-![](10.一键生成个人微信朋友圈数据电子书/image/page1.png)
-![](10.一键生成个人微信朋友圈数据电子书/image/page2.png)
+![](One-Click Generation of Personal WeChat Moments Data E-Book/image/page1.png)
+![](One-Click Generation of Personal WeChat Moments Data E-Book/image/page2.png)
 
 ### 纸质书效果(图片引用自[心书](https://weixinshu.com/library/unboxing))
-![](10.一键生成个人微信朋友圈数据电子书/image/page3.jpeg)
+![](One-Click Generation of Personal WeChat Moments Data E-Book/image/page3.jpeg)
 
 
 ### 如何运行
@@ -522,8 +522,8 @@ python app.py
 
 在开始写代码思路之前，我们先看看最终生成的效果。
 
-![](12.一键导出微信读书的书籍和笔记/demo1.png)
-![](12.一键导出微信读书的书籍和笔记/demo2.png)
+![](12.One-Click Export of WeChat Reading Books and Notes/demo1.png)
+![](12.One-Click Export of WeChat Reading Books and Notes/demo2.png)
 
 
 ### 如何运行

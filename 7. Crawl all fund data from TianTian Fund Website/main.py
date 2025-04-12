@@ -8,7 +8,7 @@ import threading
 import csv
 import json
 
-# user_agent列表
+# List of User-Agent strings to mimic different browsers
 user_agent_list = [
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.71 Safari/537.1 LBBROWSER',
     'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; QQDownload 732; .NET4.0C; .NET4.0E)',
@@ -17,7 +17,7 @@ user_agent_list = [
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 UBrowser/4.0.3214.0 Safari/537.36'
 ]
 
-# referer列表
+# List of Referer URLs to mimic requests coming from different pages
 referer_list = [
     'http://fund.eastmoney.com/110022.html',
     'http://fund.eastmoney.com/110023.html',
@@ -25,37 +25,32 @@ referer_list = [
     'http://fund.eastmoney.com/110025.html'
 ]
 
-
-
-# 返回一个可用代理，格式为ip:端口
-# 该接口直接调用github代理池项目给的例子，故不保证该接口实时可用
-# 建议自己搭建一个本地代理池，这样获取代理的速度更快
-# 代理池搭建github地址https://github.com/1again/ProxyPool
-# 搭建完毕后，把下方的proxy.1again.cc改成你的your_server_ip，本地搭建的话可以写成127.0.0.1或者localhost
+# Function to get a proxy from a proxy pool
+# This function calls an external API to get a proxy
+# It's recommended to set up a local proxy pool for better performance
 def get_proxy():
     data_json = requests.get("http://proxy.1again.cc:35050/api/v1/proxy/?type=2").text
     data = json.loads(data_json)
     return data['data']['proxy']
 
-
-# 获取所有基金代码
+# Function to get all fund codes from Eastmoney
 def get_fund_code():
-    # 获取一个随机user_agent和Referer
+    # Select a random User-Agent and Referer
     header = {'User-Agent': random.choice(user_agent_list),
               'Referer': random.choice(referer_list)
     }
 
-    # 访问网页接口
+    # Make a request to the Eastmoney API to get fund codes
     req = requests.get('http://fund.eastmoney.com/js/fundcode_search.js', timeout=5, headers=header)
 
-    # 获取所有基金代码
+    # Process the response to extract fund codes
     fund_code = req.content.decode()
     fund_code = fund_code.replace("﻿var r = [","").replace("];","")
 
-    # 正则批量提取
+    # Use regex to find all fund code entries
     fund_code = re.findall(r"[\[](.*?)[\]]", fund_code)
 
-    # 对每行数据进行处理，并存储到fund_code_list列表中
+    # Parse each entry and store in a list
     fund_code_list = []
     for sub_data in fund_code:
         data = sub_data.replace("\"","").replace("'","")
@@ -64,75 +59,61 @@ def get_fund_code():
 
     return fund_code_list
 
-
-# 获取基金数据
+# Function to get fund data using the fund code
 def get_fund_data():
-
-    # 当队列不为空时
+    # Continue processing while there are fund codes in the queue
     while (not fund_code_queue.empty()):
-
-        # 从队列读取一个基金代码
-        # 读取是阻塞操作
+        # Get a fund code from the queue
         fund_code = fund_code_queue.get()
 
-        # 获取一个代理，格式为ip:端口
+        # Get a proxy for the request
         proxy = get_proxy()
 
-        # 获取一个随机user_agent和Referer
+        # Select a random User-Agent and Referer
         header = {'User-Agent': random.choice(user_agent_list),
                   'Referer': random.choice(referer_list)
         }
 
-        # 使用try、except来捕获异常
-        # 如果不捕获异常，程序可能崩溃
+        # Use try-except to handle exceptions and retry if necessary
         try:
-            # 使用代理访问
+            # Make a request to the fund data API using the proxy
             req = requests.get("http://fundgz.1234567.com.cn/js/" + str(fund_code) + ".js", proxies={"http": proxy}, timeout=3, headers=header)
 
-            # 没有报异常，说明访问成功
-            # 获得返回数据
+            # Process the response to extract fund data
             data = (req.content.decode()).replace("jsonpgz(","").replace(");","").replace("'","\"")
             data_dict = json.loads(data)
             print(data_dict)
 
-            # 申请获取锁，此过程为阻塞等待状态，直到获取锁完毕
+            # Acquire a lock to safely write to the CSV file
             mutex_lock.acquire()
 
-            # 追加数据写入csv文件，若文件不存在则自动创建
+            # Write the data to a CSV file
             with open('./fund_data.csv', 'a+', encoding='utf-8') as csv_file:
                 csv_writer = csv.writer(csv_file)
                 data_list = [x for x in data_dict.values()]
                 csv_writer.writerow(data_list)
 
-            # 释放锁
+            # Release the lock after writing
             mutex_lock.release()
 
         except Exception:
-            # 访问失败了，所以要把我们刚才取出的数据再放回去队列中
+            # If an error occurs, put the fund code back into the queue
             fund_code_queue.put(fund_code)
-            print("访问失败，尝试使用其他代理访问")
-
+            print("Access failed, trying with another proxy")
 
 if __name__ == '__main__':
-
-    # 获取所有基金代码
+    # Get all fund codes
     fund_code_list = get_fund_code()
 
-    # 将所有基金代码放入先进先出FIFO队列中
-    # 队列的写入和读取都是阻塞的，故在多线程情况下不会乱
-    # 在不使用框架的前提下，引入多线程，提高爬取效率
-    # 创建一个队列
+    # Create a queue to hold the fund codes
     fund_code_queue = queue.Queue(len(fund_code_list))
-    # 写入基金代码数据到队列
+    # Add each fund code to the queue
     for i in range(len(fund_code_list)):
-        #fund_code_list[i]也是list类型，其中该list中的第0个元素存放基金代码
         fund_code_queue.put(fund_code_list[i][0])
 
-
-
-    # 创建一个线程锁，防止多线程写入文件时发生错乱
+    # Create a lock to synchronize file writing among threads
     mutex_lock = threading.Lock()
-    # 线程数为50，在一定范围内，线程数越多，速度越快
+    # Create and start multiple threads to improve crawling efficiency
     for i in range(50):
-        t = threading.Thread(target=get_fund_data,name='LoopThread'+str(i))
+        t = threading.Thread(target=get_fund_data, name='LoopThread'+str(i))
         t.start()
